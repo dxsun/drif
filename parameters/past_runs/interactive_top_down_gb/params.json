@@ -1,0 +1,226 @@
+{
+    "Environment": {
+        "airsim_settings_path": "~/Documents/AirSim/settings.json",
+        "simulator_path": "/storage/dxsun/UnrealBinary2/LinuxNoEditor/MyProject5.sh",
+        "sim_config_dir": "/storage/dxsun/drif/unreal_config/",
+        "config_dir": "/storage/dxsun/unreal_config_nl/",
+        "real_drone": false,
+        "templates": false
+    },
+    "AirSim": {
+        "SettingdVersion": 1.0,
+        "ClockSpeed": 1.5,
+        "SimpleFlight": {
+            "FirmwareName": "SimpleFlight",
+            "RemoteControlID": 0,
+            "RC": {
+                "AllowAPIWhenDisconnected": true,
+                "AllowAPIAlways": true
+            },
+            "ApiServerPort": 10000
+        },
+        "CaptureSettings": [
+            {
+                "ImageType": 0,
+                "Width": 128,
+                "Height": 72,
+                "FOV_Degrees": 90,
+                "AutoExposureSpeed": 1,
+                "AutoExposureBias": 0.5,
+                "AutoExposureMaxBrightness": 0.97,
+                "AutoExposureMinBrightness": 0.03,
+                "TargetGamma": 2.5
+            }
+        ]
+    },
+    "Setup": {
+        "model": "oracle",
+        "model_file": "",
+        "run_name": "interactive_top_down_gb",
+        "num_workers": 1,
+        "first_worker": 0,
+        "max_envs": 50,
+        "env_range_start": 0,
+        "cuda": true,
+        "eval_env_set": "dev",
+        "eval_landmark_side": true,
+        "eval_nl": true,
+        "eval_pretrain": true,
+        "restore_weights_name": "",
+        "fix_restored_weights": false,
+        "debug": false,
+        "trajectory_length": 220,
+        "write_summaries": true,
+        "prune_ambiguous": false,
+        "top_down_model": "top_down_goal_batched",
+        "top_down_model_file": "corl/top_down/top_down_top_down_goal_batched_tdg_batched_aux_cls_gradcut_normrand_epoch_19",
+        "wrapper_model": "sm_traj_nav_ratio",
+        "wrapper_model_file": "corl/full2/supervised_sm_traj_nav_ratio_path_sup_full_e19"
+    },
+    "Units": {
+        "config_origin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "config_scale": [
+            1.0,
+            -1.0,
+            -1.0
+        ],
+        "config_size": [
+            1000.0,
+            1000.0,
+            1000.0
+        ],
+        "env_origin": [
+            0.0,
+            3000.0,
+            0.0
+        ],
+        "env_size": [
+            3000.0,
+            3000.0,
+            3000.0
+        ],
+        "scale": 1.0
+    },
+    "BasicCarrotPlanner": {
+        "vel_x": 1.0,
+        "min_vel_x": 0.3,
+        "k_yaw": 1.0,
+        "lookahead_dst": 120.0,
+        "accelerate_steps": 3,
+        "end_dst": 120.0,
+        "stop_dst": 30.0
+    },
+    "SimpleCarrotPlanner": {
+        "vel_x": 1.0,
+        "min_vel_x": 0.1,
+        "k_yaw": 0.5,
+        "k_offset": 0.1,
+        "lookahead": 12,
+        "accelerate_steps": 3
+    },
+    "PomdpInterface": {
+        "scale": 1.0,
+        "step_interval": 0.5,
+        "randomize_init_pos": false,
+        "init_pos_variance": 20.0,
+        "init_yaw_variance": 0.5,
+        "flight_height": 100
+    },
+    "Dynamics": {
+        "max_vel_x": 120,
+        "max_vel_theta": 120
+    },
+    "Dagger": {
+        "epochs_per_iteration": 1,
+        "epochs_per_iteration_override": {},
+        "max_iterations": 150,
+        "num_test_samples": 100,
+        "max_envs_dag": 5000,
+        "max_envs_sup": 1000,
+        "train_envs_per_iteration_override": {},
+        "train_envs_per_iteration": 24,
+        "test_envs_per_iteration": 6,
+        "oracle_discount_factor": 0.92,
+        "retrain_every_iteration": false,
+        "optimizer": "adam",
+        "max_deviation": 150,
+        "max_samples_in_memory": 500,
+        "resample_supervised_data": false,
+        "segment_level": true,
+        "test_on_train": false,
+        "restore_latest": false,
+        "restore": 0,
+        "restore_data_only": false
+    },
+    "ModelPVN": {
+        "num_landmarks": 64,
+        "emb_size": 30,
+        "emb_layers": 1,
+        "word_emb_size": 20,
+        "mlp_hidden": 32,
+        "resnet_channels": 32,
+        "feature_channels": 32,
+        "relevance_channels": 3,
+        "map_to_act_channels": 2,
+        "pathpred_in_channels": 35,
+        "global_map_size": 32,
+        "local_map_size": 64,
+        "world_size_px": 32,
+        "world_size_m": 30,
+        "img_w": 128,
+        "img_h": 72,
+        "cam_h_fov": 90,
+        "plan_every_n_steps": 6,
+        "condition_on_start_pos": false,
+        "clear_history": true,
+        "action_upd_correct_only": false,
+        "train_action_only": false,
+        "detach_action_grad": true,
+        "train_action_from_dstar": true,
+        "run_action_from_dstar": false,
+        "action_in_path_only": false,
+        "action_recurrence": false,
+        "manual_rule": false,
+        "perturb_maps": true,
+        "predict_in_start_frame": true,
+        "map_to_action": "cropped",
+        "path_loss_function": "crossentropy",
+        "stop_threshold": 0.07,
+        "run_auxiliaries": true,
+        "write_figures": false,
+        "write_gifs": false,
+        "use_prior_only": false,
+        "compute_prior": true,
+        "aux": {
+            "class_features": false,
+            "grounding_features": false,
+            "class_map": true,
+            "grounding_map": true,
+            "goal_map": false,
+            "lang": true,
+            "path": true,
+            "regularize_map": false
+        },
+        "load_action_policy": true,
+        "action_policy_file": "corl/action_gtr/map_to_action_dag_action_gtr_dag99"
+    },
+    "AuxWeights": {
+        "aux_class": 0.2,
+        "aux_ground": 0.2,
+        "aux_class_map": 1.0,
+        "aux_grounding_map": 1.0,
+        "aux_goal": 0.1,
+        "aux_lang_lm_nl": 0.25,
+        "aux_lang_lm": 0.1,
+        "aux_lang_side": 0.1,
+        "aux_path": 1.0,
+        "aux_path_prior": 1.0,
+        "aux_path_posterior": 1.0,
+        "aux_regularize_features": 0.001,
+        "action": 1.0,
+        "regularize_map": true
+    },
+    "@include": [
+        "environments/demo",
+        "airsim/settings_corl_interactive",
+        "include/setup_base",
+        "include/units",
+        "include/basic_carrot_planner",
+        "include/simple_carrot_planner",
+        "include/pomdp_interface",
+        "include/dynamics",
+        "include/training/dagger",
+        "include/models/corl"
+    ],
+    "Rollout": {
+        "oracle_type": "BasicCarrotPlanner"
+    },
+    "Simulator": {
+        "window_x": 1349,
+        "window_y": 760
+    }
+}

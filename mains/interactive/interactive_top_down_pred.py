@@ -3,6 +3,10 @@ import numpy as np
 import cv2
 import torch
 
+# for path issues:
+import sys
+sys.path.insert(1, "/storage/dxsun/drif/")
+
 from data_io.models import load_model
 from data_io.instructions import get_correct_eval_env_id_list
 from data_io.instructions import tokenize_instruction, get_all_instructions, get_word_to_token_map
@@ -22,6 +26,7 @@ import parameters.parameter_server as P
 
 import torch.nn.functional as F
 import torch.nn
+
 
 # Supervised learning parameters
 SUPERVISED_EPOCHS = 100

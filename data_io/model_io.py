@@ -16,7 +16,7 @@ def save_pytorch_model(model, name):
 
 def load_pytorch_model(model, name):
     path = os.path.join(get_model_dir(), str(name) + ".pytorch")
-
+    print("path:", path)
     model_dict = torch.load(path, map_location=lambda storage, loc: storage)
 
     # Fix for loading PyTorch 0.3 models in PyTorch 0.4

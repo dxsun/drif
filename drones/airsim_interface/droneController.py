@@ -51,9 +51,12 @@ def spawn_worker(instance_id, port):
     pos_x = str(pos_x)
     res_y = str(res_y)
 
+    print("WE REACHED HERE")
+
     command = 'gnome-terminal -x ' + paths.get_sim_executable_path() + " -WINDOWED -ResX=" + res_x + " -ResY=" + res_y + \
               " -FPS=10" + " -WinX=" + pos_x + " -WinY=50"
-    command += " WorkerID " + str(instance_id) + " ApiServerPort " + str(port)
+    command += " WorkerID " + str(instance_id) + " ApiServerPort " + str(port) 
+    #+ " ConfigPath " + "/storage/dxsun/drif/unreal_config/current_config/0/random_config.json"
     subprocess.Popen(command, env=os.environ, shell=True)
 
 

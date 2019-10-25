@@ -15,42 +15,84 @@ def read_suggest_file():
         real_nl = fp.read()
     return real_nl or ""
 
+def b1(): 
+    return sg.Text("    Enter:", font=docfont)
+
+def b1b():
+    return sg.Text("Execute command", font=docfont)
+
+def b2():
+    return sg.Text("    Left:  ", font=docfont)
+
+def b2b():
+    return sg.Text("Reset the drone to starting position", font=docfont)
+
+def b3():
+    return sg.Text("    Right:", font=docfont)
+
+def b3b():
+    return sg.Text("Go to the next environment", font=docfont)
+
+def b4():
+    return sg.Button('OK', font=buttonfont, button_color=buttoncolor)
+        
+def b5():
+    return sg.Button('Next',  font=buttonfont, button_color=buttoncolor)
+
+def b6():
+    return sg.Button("Reset",  font=buttonfont, button_color=buttoncolor)
+
+def b7():
+    return sg.Button('Clear Text',  font=buttonfont, button_color=buttoncolor)
+
 if __name__ == "__main__":
     keep_going = True
-    form = sg.FlexForm("Enter the navigation command",
-        return_keyboard_events=True,
-        default_element_size=(90, 40))
+    def b_form():
+        return sg.FlexForm("Enter the navigation command",
+            return_keyboard_events=True,
+            default_element_size=(90, 40))
+    form = b_form()
     inputfont = ('Helvetica 30')
     buttonfont = ('Helvetica 20')
     buttoncolor = ("#FFFFFF", "#333333")
     docfont = ('Helvetica 15')
+    def b_sug():
+        return sg.Text(" ", font=('Helvetica 15'))
+    suggested_text = b_sug()
 
-    suggested_text = sg.Text(" ", font=('Helvetica 15'))
-    input_field = sg.Input(font=inputfont)
+    def b_in():
+        return sg.Input(font=inputfont)
+    
+    input_field = b_in()
     layout = [
         [suggested_text],
-        [sg.Text("    Enter:", font=docfont), sg.Text("Execute command", font=docfont)],
-        [sg.Text("    Left:  ", font=docfont), sg.Text("Reset the drone to starting position", font=docfont)],
-        [sg.Text("    Right:", font=docfont), sg.Text("Go to the next environment", font=docfont)],
+        [b1(), b1b()],
+        [b2(), b2b()],
+        [b3(), b3b()],
         [input_field],
-        [sg.ReadFormButton('OK', font=buttonfont, button_color=buttoncolor),
-        sg.ReadFormButton('Next',  font=buttonfont, button_color=buttoncolor),
-        sg.ReadFormButton("Reset",  font=buttonfont, button_color=buttoncolor),
-        sg.ReadFormButton('Clear Text',  font=buttonfont, button_color=buttoncolor)]
+        [b4(), b5(), b6(), b7()]
     ]
-
+    
+    form.Layout(layout)
     while keep_going:
         real_nl_cmd = read_suggest_file()
         print("Suggested CMD", real_nl_cmd)
-        layout[0] = [sg.Text("    Down:  Use suggested: " + real_nl_cmd, font=('Helvetica 15'))]
-        form.Layout(layout)
+        
+        def b_lay():
+            return [sg.Text("    Down:  Use suggested: " + real_nl_cmd, font=('Helvetica 15'))]
+        layout[0] = b_lay()
 
         #suggested_text.Update()
 
         # ---===--- Loop taking in user input --- #
         while True:
-            button, values = form.ReadNonBlocking()
-            #print("Got: ", button, values)
+            # button, values = form.ReadNonBlocking()
+            button, values = form.Read()
+            # print("Got: ", button, values)
+            print("button:")
+            print(repr(button))
+            print("values:")
+            print(repr(values))
             nl_command = values[0] if values else ""
 
             if button in ["Next", "Right:114"]:

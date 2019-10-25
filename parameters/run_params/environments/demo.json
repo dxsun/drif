@@ -1,9 +1,9 @@
 {
   "Environment":
   {"airsim_settings_path": "~/Documents/AirSim/settings.json",
-    "simulator_path": "~/shelf_space/droning/unreal_project/DroneSimulator/LinuxNoEditor/MyProject5.sh",
-    "sim_config_dir": "/home/clic/unreal_config/",
-    "config_dir": "/home/clic/shelf_space/unreal_config_nl/",
+    "simulator_path": "/storage/dxsun/UnrealBinary2/LinuxNoEditor/MyProject5.sh",
+    "sim_config_dir": "/storage/dxsun/drif/unreal_config/",
+    "config_dir": "/storage/dxsun/unreal_config_nl/",
     "real_drone": false,
     "templates": false
   }

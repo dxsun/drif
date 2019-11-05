@@ -148,6 +148,7 @@ class TopDownDatasetSM(Dataset):
         else:
             env_id = self.env_list[idx]
 
+        print("top_down_dataset_sm __getitem__ load_env_config")
         env_conf_json = load_env_config(env_id)
         landmark_names, landmark_indices, landmark_positions = get_landmark_locations_airsim(env_conf_json)
 

@@ -97,6 +97,7 @@ def show_depth(image):
 for instruction_sets in train_instructions.values():
     for instruction_set in instruction_sets:
         env_id = instruction_set['env']
+        print("pomdp_interface setting environment id:", env_id)
         set_current_env_id(env_id)
         env.set_environment(env_id, instruction_set["instructions"])
         env.reset(0)

@@ -29,6 +29,7 @@ def faux_dataset_random_pt(eval_envs):
     dataset = []
     for env_id in eval_envs:
         segment_dataset = []
+        print("faux_dataset load_env_config")
         config = load_env_config(env_id)
         template = load_template(env_id)
 
@@ -57,6 +58,7 @@ def faux_dataset_random_landmark(eval_envs):
     dataset = []
     for env_id in eval_envs:
         segment_dataset = []
+        print("faux_dataset part 2 load_env_config")
         config = load_env_config(env_id)
         template = load_template(env_id)
         path = load_path(env_id)

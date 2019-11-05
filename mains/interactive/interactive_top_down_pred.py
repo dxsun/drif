@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import torch
-
+import json
 # for path issues:
 import sys
 sys.path.insert(1, "/storage/dxsun/drif/")
@@ -78,6 +78,9 @@ def train_top_down_pred():
 
     env = PomdpInterface()
 
+    print("model_name:",setup["top_down_model"])
+    print("model_file:", setup["top_down_model_file"])
+
     model, model_loaded = load_model(model_name_override=setup["top_down_model"],
                                      model_file_override=setup["top_down_model_file"])
 
@@ -89,6 +92,7 @@ def train_top_down_pred():
         affine2d.cuda()
 
     eval_envs = get_correct_eval_env_id_list()
+    print("eval_envs:", eval_envs)
     train_instructions, dev_instructions, test_instructions, corpus = get_all_instructions(max_size=setup["max_envs"])
     all_instr = {**train_instructions, **dev_instructions, **train_instructions}
     token2term, word2token = get_word_to_token_map(corpus)
@@ -102,8 +106,8 @@ def train_top_down_pred():
         num_workers=1,
         pin_memory=True)
 
-    for b, batch in enumerate(dataloader):
-
+    for b, batch in list(enumerate(dataloader)):
+        print("batch:", batch)
         images = batch["images"]
         instructions = batch["instr"]
         label_masks = batch["traj_labels"]
@@ -114,11 +118,12 @@ def train_top_down_pred():
 
         env_id = env_ids[0][0]
         set_idx = set_idxs[0][0]
+        print("env_id of this batch:", env_id) 
         env.set_environment(env_id, instruction_set=all_instr[env_id][set_idx]["instructions"])
         env.reset(0)
 
         num_segments = len(instructions[0])
-
+        print("num_segments in this batch:", num_segments)
         write_instruction("")
         write_real_instruction("None")
         instruction_str = read_instruction_file()
@@ -134,10 +139,14 @@ def train_top_down_pred():
             write_real_instruction(real_instruction_str)
             #write_instruction(real_instruction_str)
             #instruction_str = real_instruction_str
+
             image = cuda_var(images[0][s], setup["cuda"], 0)
             label_mask = cuda_var(label_masks[0][s], setup["cuda"], 0)
             affine_g_to_s = affines[0][s]
-
+            print("Your current environment:")
+            with open("/storage/dxsun/unreal_config_nl/configs/configs/random_config_" + str(env_id) + ".json") as fp:
+                config = json.load(fp)
+            print(config)
             while keep_going:
                 write_real_instruction(real_instruction_str)
 
@@ -169,6 +178,10 @@ def train_top_down_pred():
                 instruction_mask = torch.ones_like(instruction_v)
                 tmp = list(instruction_t[0].numpy())
                 instruction_dbg_str = debug_untokenize_instruction(tmp, token2term)
+                
+                # import matplotlib.pyplot as plt
+                #plt.plot(image.squeeze(0).permute(1,2,0).cpu().numpy())
+                #plt.show()
 
                 res = model(image, instruction_v, instruction_mask)
                 mask_pred = res[0]
@@ -203,12 +216,18 @@ def train_top_down_pred():
                 mask_pred_np[:, :, 1] /= (mask_pred_np[:, :, 1].max() + 1e-9)
 
                 presenter = Presenter()
-                #presenter.show_image(mask_pred_g_np, "mask_pred_g", torch=False, waitkey=1, scale=4)
+                presenter.show_image(mask_pred_g_np, "mask_pred_g", torch=False, waitkey=1, scale=4)
+                #import matplotlib.pyplot as plt
+                #print("image.data shape:", image.data.cpu().numpy().shape)
+                #plt.imshow(image.data.squeeze().permute(1,2,0).cpu().numpy())
+                #plt.show()
+                # presenter.show_image(image.data, "mask_pred_g", torch=False, waitkey=1, scale=4)
                 pred_viz_np = presenter.overlaid_image(image.data, mask_pred_np, channel=0)
                 # TODO: Don't show labels
                 # TODO: OpenCV colours
                 #label_mask_np = p.data.cpu().numpy()[0].transpose(1,2,0)
 
+                
                 labl_viz_np = presenter.overlaid_image(image.data, label_mask.data, channel=0)
                 viz_img_np = np.concatenate((pred_viz_np, labl_viz_np), axis=1)
                 viz_img_np = pred_viz_np
@@ -216,7 +235,7 @@ def train_top_down_pred():
                 viz_img = presenter.overlay_text(viz_img_np, instruction_dbg_str)
                 cv2.imshow("interactive viz", viz_img)
                 cv2.waitKey(100)
-
+                
                 rollout_model(exec_model, env, env_ids[0][s], set_idxs[0][s], seg_idxs[0][s], tok_instruction)
                 write_instruction("")
 

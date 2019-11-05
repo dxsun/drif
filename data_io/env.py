@@ -13,6 +13,8 @@ from data_io.helpers import load_json, save_json
 def load_env_config(env_id):
     with open(paths.get_env_config_path(env_id)) as fp:
         config = json.load(fp)
+    #print("config loaded:")
+    #print(config)
     return config
 
 
@@ -22,6 +24,7 @@ def get_available_env_ids():
     jsons = [j for j in jsons if j.endswith(".json")]
     # extract ID from random_config_ID.json where ID is an integer
     ids = [int(j.split("_")[2].split(".")[0]) for j in jsons]
+    print("available env ids:", ids)
     return list(sorted(ids))
 
 
@@ -133,6 +136,9 @@ def load_real_drone_pose(env_id, pose_id):
 
     pos = np.asarray(drone_pose["position"])
     quat = np.asarray(drone_pose["orientation"])
+
+    print("drone pose:")
+    print(drone_pose)
 
     pos, quat = pose_ros_enu_to_airsim_ned(pos, quat)
 

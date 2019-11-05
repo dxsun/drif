@@ -69,7 +69,7 @@ class AuxLabelsBase:
         # presenter = Presenter()
 
         env_id = segment_data.metadata[0]["env_id"]
-
+        print("aux_labels __call__ load_env_cong")
         conf_json = load_env_config(env_id)
         all_landmark_indices = get_landmark_name_to_index()
         landmark_names, landmark_indices, landmark_pos = get_landmark_locations_airsim(conf_json)

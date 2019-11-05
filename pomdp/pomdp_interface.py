@@ -81,7 +81,9 @@ class PomdpInterface:
         :return:
         """
         self.env_id = env_id
-
+        print("in pomdp_interface:")
+        print("current_env_id:", env_id)
+        print("self.instance_id:", self.instance_id)
         self.drone.set_current_env_id(env_id, self.instance_id)
         self.drone.reset_environment()
 

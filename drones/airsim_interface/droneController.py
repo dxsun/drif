@@ -117,15 +117,18 @@ class DroneController():
         self._write_airsim_settings()
         startAirSim(self, instance, self.port)
 
-    def _get_config(self, name, i=None, instance_id=None):
-        config = load_env_config(id)
+    def _get_config(self, name, i=None, instance_id=None): 
+        print("_get_config load_env_config")
+        config = load_env_config(i)
         return config
 
     def _set_config(self, json_data, subfolder, name, i=None, instance_id=None):
         folder = paths.get_current_config_folder(i, instance_id)
         id = "" if i is None else "_" + str(i)
         path = os.path.join(paths.get_sim_config_dir(), folder, subfolder, name + id + ".json")
-
+        print("_set_config folder:", folder)
+        print("_set_config subfolder:", subfolder)
+        print("_set_config path:", path)
         if not os.path.isdir(os.path.dirname(path)):
             try:
                 os.makedirs(os.path.dirname(path))
@@ -142,6 +145,7 @@ class DroneController():
         subprocess.check_call(["touch", path])
 
     def _load_drone_config(self, i, instance_id=None):
+        print("_load_drone_config load_env_config")
         conf_json = load_env_config(i)
         self._set_config(conf_json, "", "random_config", i=None, instance_id=instance_id)
 
@@ -359,7 +363,7 @@ class DroneController():
 
         #for env_conf, folder in zip(env_confs, folders):
         self._load_drone_config(env_id, instance_id)
-
+        print("set_current_env_id env_id:", env_id)
         gc.collect()
 
     def reset_environment(self):

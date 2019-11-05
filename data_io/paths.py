@@ -14,13 +14,16 @@ def get_sim_executable_path():
 
 
 def get_sim_config_dir():
-    return get_current_parameters()["Environment"]["sim_config_dir"]
-
+    directory = get_current_parameters()["Environment"]["sim_config_dir"]
+    print("get_sim_config_dir:", directory)
+    return directory
 
 # Configs
 # --------------------------------------------------------------------------------------------
 def get_env_config_path(env_id):
-    return os.path.join(get_config_dir(), "configs", "random_config_%d.json" % env_id)
+    directory = os.path.join(get_config_dir(), "configs", "random_config_%d.json" % env_id)
+    print("get_env_config_path:", directory)
+    return directory
 #    return os.path.join(get_env_config_dir(), "config_%d.json" % env_id)
 
 def get_template_path(env_id):

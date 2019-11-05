@@ -288,7 +288,7 @@ class TopDownDataset(Dataset):
         return torch.LongTensor(tok_fake_instruction).unsqueeze(0)
 
     def gen_lm_aux_labels(self, env_id, instruction, affine):
-
+        print("top_down_dataset gen_lm_aux_labels load_env_config")
         env_conf_json = load_env_config(env_id)
         landmark_names, landmark_indices, landmark_positions = get_landmark_locations_airsim(env_conf_json)
         landmark_pos_in_img = as_to_img(np.asarray(landmark_positions)[:, 0:2], np.array([self.map_w, self.map_h]))

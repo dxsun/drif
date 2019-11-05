@@ -338,7 +338,7 @@ def provider_lm_pos_lm_indices_fpv(segment_data, data):
 
     #if INSTRUCTIONS_FROM_FILE:
     #    env_instr = load_instructions(env_id)
-
+    print("aux_data_providers load_env_config")
     conf_json = load_env_config(env_id)
     all_landmark_indices = get_landmark_name_to_index()
     landmark_names, landmark_indices, landmark_pos = get_landmark_locations_airsim(conf_json)

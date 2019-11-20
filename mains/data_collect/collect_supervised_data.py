@@ -1,11 +1,11 @@
+import sys
+sys.path.insert(1, "/storage/dxsun/drif/")
 from data_io.paths import get_supervised_data_filename
 from rollout.parallel_roll_out import ParallelPolicyRoller
 from rollout.roll_out_params import RollOutParams
 from data_io.instructions import get_all_env_id_lists
 from data_io.train_data import save_dataset, file_exists
-
 import parameters.parameter_server as P
-
 
 def filter_uncollected_envs(env_list):
     uncollected = []
@@ -24,8 +24,9 @@ def filter_uncollected_envs(env_list):
 def collect_data_on_env_list(env_list):
     setup = P.get_current_parameters()["Setup"]
 
-    roller = ParallelPolicyRoller(num_workers=setup["num_workers"], reduce=False)
+    # roller = ParallelPolicyRoller(num_workers=setup["num_workers"], reduce=False)
 
+    roller = ParallelPolicyRoller(num_workers=1, reduce=False)
     roll_params = RollOutParams() \
         .setModelName("oracle") \
         .setRunName(setup["run_name"]) \
@@ -51,11 +52,14 @@ def collect_data_on_env_list(env_list):
         round_envs = round_envs[:group_size]
         roll_params.setEnvList(round_envs)
         env_datas = roller.roll_out_policy(roll_params)
+        print("env_datas:", env_datas)
         for j in range(len(env_datas)):
             env_data = env_datas[j]
+            print("env_data code4:", env_data)
             if len(env_data) > 0:
                 env_id = env_data[0]["metadata"]["env_id"]
                 filename = get_supervised_data_filename(env_id)
+                print("filename:", filename)
                 save_dataset(env_data, filename)
             else:
                 print("Empty rollout!")
@@ -66,7 +70,6 @@ def collect_supervised_data():
     setup = P.get_current_parameters()["Setup"]
 
     train_envs, dev_envs, test_envs = get_all_env_id_lists(setup["max_envs"])#
-
     collect_data_on_env_list(train_envs)
     collect_data_on_env_list(dev_envs)
 

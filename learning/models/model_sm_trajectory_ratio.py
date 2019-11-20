@@ -109,7 +109,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
         self.num_feature_channels = self.params["feature_channels"]# + params["relevance_channels"]
         # TODO: Fix this for if we don't have grounding
         self.num_map_channels = self.params["pathpred_in_channels"]
-
+        
         self.img_to_features_w = FPVToGlobalMap(
             source_map_size=self.params["global_map_size"], world_size_px=self.params["world_size_px"], world_size=self.params["world_size_m"],
             res_channels=self.params["resnet_channels"], map_channels=self.params["feature_channels"],
@@ -459,7 +459,6 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
                 self.clear_inputs("traj_gt_w_select")
                 self.keep_inputs("traj_gt_r_select", traj_gt_r)
                 self.keep_inputs("traj_gt_w_select", traj_gt_w)
-
             action = self(img_in_t, state, instruction, instr_len, plan=plan_now, pos_enc=step_enc,
                           start_poses=start_pose, firstseg=[first_step])
 
@@ -570,6 +569,33 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
             were built along the way in response to the images. This is ugly, but allows code reuse
         :return:
         """
+        # import pdb; pdb.set_trace()
+        forward_input = {
+            "images": images,
+            "states": states,
+            "instructions": instructions,
+            "instr_lengths": instr_lengths,
+            "has_obs": has_obs,
+            "plan": plan,
+            "save_maps_only": save_maps_only,
+            "pos_enc": pos_enc,
+            "noisy_poses": noisy_poses,
+            "start_poses": start_poses,
+            "firstseg": firstseg
+        }
+        # import pickle 
+        # with open('/storage/dxsun/model_input.pickle', 'wb') as f:
+        #     pickle.dump(forward_input, f, pickle.HIGHEST_PROTOCOL)
+        # import pdb; pdb.set_trace()
+        print('images shape:', images.shape)
+        print("states shape:", states.shape)
+        print('instructions shape:', instructions.shape)
+        print('instr_lengths shape:', instr_lengths)
+        print('instr_lengths input:', instr_lengths)
+        print('code6')
+        # import pdb; pdb.set_trace()
+        # import sys
+        # sys.path.insert(1, "/storage/dxsun/drif")
         cam_poses = self.cam_poses_from_states(states)
         g_poses = None
         self.prof.tick("out")
@@ -585,13 +611,15 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
             self.keep_inputs("sentence_embed", sent_embeddings)
         else:
             sent_embeddings = self.sentence_embedding.get()
-
+        
+        # import pdb; pdb.set_trace()
         self.prof.tick("embed")
 
         if (not self.params["train_action_only"] or not self.params["train_action_from_dstar"] or not self.params["run_action_from_dstar"])\
                 and not self.use_visitation_ground_truth:
 
             # Extract and project features onto the egocentric frame for each image
+            
             features_w, coverages_w = self.img_to_features_w(images, cam_poses, sent_embeddings, self, show="")
             self.keep_inputs("F_w", features_w)
             self.keep_inputs("M_w", coverages_w)
@@ -646,6 +674,8 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
                 # Data augmentation for trajectory prediction
                 # TODO: Should go inside trajectory predictor
                 map_poses_clean_select = None
+                # NOTE: remove this line (dxsun)
+                # self.do_perturb_maps = False
                 if self.do_perturb_maps:
                     assert noisy_poses_select is not None, "Noisy poses must be provided if we're perturbing maps"
                     #map_poses_s_clean_select = Pose(map_poses_s_select.position.clone(), map_poses_s_select.orientation.clone()) # Remember the clean poses
@@ -764,6 +794,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
         else:
             action_pred = self.map_to_action(maps_m, sent_embeddings, fistseg_mask=firstseg)
 
+        # import pdb; pdb.set_trace()
         out_action = self.deterministic_action(action_pred[:, 0:3], None, action_pred[:, 3])
         self.keep_inputs("action", out_action)
         self.prof.tick("map_to_action")
@@ -814,6 +845,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
 
     # Forward pass for training
     def sup_loss_on_batch(self, batch, eval):
+        print("code5")
         self.prof.tick("out")
 
         action_loss_total = Variable(empty_float_tensor([1], self.is_cuda, self.cuda_device))

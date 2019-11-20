@@ -111,8 +111,12 @@ class Trainer:
             inference_type = "train"
             epoch_num = self.train_epoch_num
             self.train_epoch_num += 1
-
+        # import pdb; pdb.set_trace()
+        # print("train_envs:", train_envs) - prints like 4200 environments
         dataset = self.model.get_dataset(data=train_data, envs=train_envs, dataset_name="supervised", eval=eval)
+        print("code2 dataset type:", type(dataset))
+        print("dataset:", dataset)
+        print("dataset env_list:", dataset.env_list)
         # TODO: Get rid of this:
         if hasattr(dataset, "set_word2token"):
             dataset.set_word2token(self.token2word, self.word2token)
@@ -122,7 +126,7 @@ class Trainer:
             collate_fn=dataset.collate_fn,
             batch_size=self.batch_size,
             shuffle=True,
-            num_workers=self.num_loaders,
+            num_workers=0,
             pin_memory=False,
             timeout=0,
             drop_last=False)
@@ -140,7 +144,7 @@ class Trainer:
         prof = SimpleProfiler(torch_sync=PROFILE, print=PROFILE)
 
         prof.tick("out")
-
+        #import pdb;pdb.set_trace()
         #try:
         for batch in dataloader:
 

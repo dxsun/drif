@@ -54,6 +54,7 @@ def filter_env_list_has_data(env_list, dataset_name):
     for env in env_list:
         filename = "supervised_train_data_env_" + str(env) if dataset_name == "supervised" else dataset_name + "_" + str(env)
         path = os.path.join(get_dataset_dir(), filename)
+        print("env_list dataset path:", path)
         # Check that the data file exists and
         if os.path.isfile(path) and os.path.getsize(path) > 1000:
             good_envs.append(env)

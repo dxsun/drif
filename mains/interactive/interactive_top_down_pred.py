@@ -214,7 +214,7 @@ def train_top_down_pred():
                 mask_pred_np[:, :, 0] *= 2.0
                 mask_pred_np[:, :, 1] -= mask_pred_np[:, :, 1].min()
                 mask_pred_np[:, :, 1] /= (mask_pred_np[:, :, 1].max() + 1e-9)
-
+                
                 presenter = Presenter()
                 presenter.show_image(mask_pred_g_np, "mask_pred_g", torch=False, waitkey=1, scale=4)
                 #import matplotlib.pyplot as plt

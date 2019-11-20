@@ -50,5 +50,5 @@ class SentenceEmbeddingSimple(ModuleBase):
             # Mean-reduce the 1st (sequence) dimension
             sentence_embedding = outputs[-1]#torch.mean(outputs, 0)
             sentence_embeddings[i] = sentence_embedding.squeeze()
-
+        # import pdb; pdb.set_trace()
         return sentence_embeddings

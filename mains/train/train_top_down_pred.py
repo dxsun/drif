@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(1, '/storage/dxsun/drif')
 from learning.training.train_supervised import Trainer
 from deprecated.parser import parse_args
 from data_io.models import load_model

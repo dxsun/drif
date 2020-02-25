@@ -71,6 +71,9 @@ class SentenceEmbeddingSimple(ModuleBase):
                 c0 = Variable(empty_float_tensor((self.lstm_layers, 1, self.lstm_size), self.is_cuda))
                 try:
                     outputs, states = self.lstm_txt(embeddings_i, (h0, c0))
+                    h, c = states
+                    h = h.detach()
+                    c = c.detach()
                 except Exception as e:
                     print("Error calculating ext embedding")
                 # Mean-reduce the 1st (sequence) dimension

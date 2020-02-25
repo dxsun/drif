@@ -569,7 +569,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
             were built along the way in response to the images. This is ugly, but allows code reuse
         :return:
         """
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         forward_input = {
             "images": images,
             "states": states,
@@ -587,12 +587,12 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
         # with open('/storage/dxsun/model_input.pickle', 'wb') as f:
         #     pickle.dump(forward_input, f, pickle.HIGHEST_PROTOCOL)
         # import pdb; pdb.set_trace()
-        print('images shape:', images.shape)
-        print("states shape:", states.shape)
-        print('instructions shape:', instructions.shape)
-        print('instr_lengths shape:', instr_lengths)
-        print('instr_lengths input:', instr_lengths)
-        print('code6')
+        # print('images shape:', images.shape)
+        # print("states shape:", states.shape)
+        # print('instructions shape:', instructions.shape)
+        # print('instr_lengths shape:', instr_lengths)
+        # print('instr_lengths input:', instr_lengths)
+        # print('code6')
         # import pdb; pdb.set_trace()
         # import sys
         # sys.path.insert(1, "/storage/dxsun/drif")

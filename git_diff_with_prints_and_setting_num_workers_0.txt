@@ -1,0 +1,278 @@
+diff --git a/data_io/weights.py b/data_io/weights.py
+index 45211fb..4577362 100755
+--- a/data_io/weights.py
++++ b/data_io/weights.py
+@@ -78,4 +78,4 @@ def is_pretrainable(module):
+     return hasattr(module, "set_pretrained_weights") and \
+            hasattr(module, "get_pretrained_weights") and \
+            hasattr(module, "fix_weights") and \
+-           hasattr(module, "get_weights_key")
+\ No newline at end of file
++           hasattr(module, "get_weights_key")
+diff --git a/learning/models/model_sm_trajectory_ratio.py b/learning/models/model_sm_trajectory_ratio.py
+index 7398ec1..f0a40a8 100755
+--- a/learning/models/model_sm_trajectory_ratio.py
++++ b/learning/models/model_sm_trajectory_ratio.py
+@@ -109,7 +109,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+         self.num_feature_channels = self.params["feature_channels"]# + params["relevance_channels"]
+         # TODO: Fix this for if we don't have grounding
+         self.num_map_channels = self.params["pathpred_in_channels"]
+-
++        
+         self.img_to_features_w = FPVToGlobalMap(
+             source_map_size=self.params["global_map_size"], world_size_px=self.params["world_size_px"], world_size=self.params["world_size_m"],
+             res_channels=self.params["resnet_channels"], map_channels=self.params["feature_channels"],
+@@ -459,7 +459,6 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+                 self.clear_inputs("traj_gt_w_select")
+                 self.keep_inputs("traj_gt_r_select", traj_gt_r)
+                 self.keep_inputs("traj_gt_w_select", traj_gt_w)
+-
+             action = self(img_in_t, state, instruction, instr_len, plan=plan_now, pos_enc=step_enc,
+                           start_poses=start_pose, firstseg=[first_step])
+ 
+@@ -570,6 +569,33 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+             were built along the way in response to the images. This is ugly, but allows code reuse
+         :return:
+         """
++        # import pdb; pdb.set_trace()
++        forward_input = {
++            "images": images,
++            "states": states,
++            "instructions": instructions,
++            "instr_lengths": instr_lengths,
++            "has_obs": has_obs,
++            "plan": plan,
++            "save_maps_only": save_maps_only,
++            "pos_enc": pos_enc,
++            "noisy_poses": noisy_poses,
++            "start_poses": start_poses,
++            "firstseg": firstseg
++        }
++        # import pickle 
++        # with open('/storage/dxsun/model_input.pickle', 'wb') as f:
++        #     pickle.dump(forward_input, f, pickle.HIGHEST_PROTOCOL)
++        # import pdb; pdb.set_trace()
++        print('images shape:', images.shape)
++        print("states shape:", states.shape)
++        print('instructions shape:', instructions.shape)
++        print('instr_lengths shape:', instr_lengths)
++        print('instr_lengths input:', instr_lengths)
++        print('code6')
++        # import pdb; pdb.set_trace()
++        # import sys
++        # sys.path.insert(1, "/storage/dxsun/drif")
+         cam_poses = self.cam_poses_from_states(states)
+         g_poses = None
+         self.prof.tick("out")
+@@ -585,13 +611,15 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+             self.keep_inputs("sentence_embed", sent_embeddings)
+         else:
+             sent_embeddings = self.sentence_embedding.get()
+-
++        
++        # import pdb; pdb.set_trace()
+         self.prof.tick("embed")
+ 
+         if (not self.params["train_action_only"] or not self.params["train_action_from_dstar"] or not self.params["run_action_from_dstar"])\
+                 and not self.use_visitation_ground_truth:
+ 
+             # Extract and project features onto the egocentric frame for each image
++            
+             features_w, coverages_w = self.img_to_features_w(images, cam_poses, sent_embeddings, self, show="")
+             self.keep_inputs("F_w", features_w)
+             self.keep_inputs("M_w", coverages_w)
+@@ -646,6 +674,8 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+                 # Data augmentation for trajectory prediction
+                 # TODO: Should go inside trajectory predictor
+                 map_poses_clean_select = None
++                # NOTE: remove this line (dxsun)
++                # self.do_perturb_maps = False
+                 if self.do_perturb_maps:
+                     assert noisy_poses_select is not None, "Noisy poses must be provided if we're perturbing maps"
+                     #map_poses_s_clean_select = Pose(map_poses_s_select.position.clone(), map_poses_s_select.orientation.clone()) # Remember the clean poses
+@@ -764,6 +794,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+         else:
+             action_pred = self.map_to_action(maps_m, sent_embeddings, fistseg_mask=firstseg)
+ 
++        # import pdb; pdb.set_trace()
+         out_action = self.deterministic_action(action_pred[:, 0:3], None, action_pred[:, 3])
+         self.keep_inputs("action", out_action)
+         self.prof.tick("map_to_action")
+@@ -814,6 +845,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+ 
+     # Forward pass for training
+     def sup_loss_on_batch(self, batch, eval):
++        print("code5")
+         self.prof.tick("out")
+ 
+         action_loss_total = Variable(empty_float_tensor([1], self.is_cuda, self.cuda_device))
+@@ -1105,4 +1137,4 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
+         if templates:
+             data_sources.append(aup.PROVIDER_LANG_TEMPLATE)
+ 
+-        return SegmentDataset(data=data, env_list=envs, dataset_name=dataset_name, aux_provider_names=data_sources, segment_level=True)
+\ No newline at end of file
++        return SegmentDataset(data=data, env_list=envs, dataset_name=dataset_name, aux_provider_names=data_sources, segment_level=True)
+diff --git a/learning/models/supervised/top_down_path_goal_predictor_pretrain_batched.py b/learning/models/supervised/top_down_path_goal_predictor_pretrain_batched.py
+index 2b77705..932b640 100755
+--- a/learning/models/supervised/top_down_path_goal_predictor_pretrain_batched.py
++++ b/learning/models/supervised/top_down_path_goal_predictor_pretrain_batched.py
+@@ -338,4 +338,4 @@ class ModelTopDownPathGoalPredictor(CudaModule):
+                              total_ground_loss)
+         self.inc_iter()
+ 
+-        return total_loss
+\ No newline at end of file
++        return total_loss
+diff --git a/learning/training/train_supervised.py b/learning/training/train_supervised.py
+index 751d927..eb1082f 100755
+--- a/learning/training/train_supervised.py
++++ b/learning/training/train_supervised.py
+@@ -111,8 +111,12 @@ class Trainer:
+             inference_type = "train"
+             epoch_num = self.train_epoch_num
+             self.train_epoch_num += 1
+-
++        # import pdb; pdb.set_trace()
++        # print("train_envs:", train_envs) - prints like 4200 environments
+         dataset = self.model.get_dataset(data=train_data, envs=train_envs, dataset_name="supervised", eval=eval)
++        print("code2 dataset type:", type(dataset))
++        print("dataset:", dataset)
++        print("dataset env_list:", dataset.env_list)
+         # TODO: Get rid of this:
+         if hasattr(dataset, "set_word2token"):
+             dataset.set_word2token(self.token2word, self.word2token)
+@@ -122,7 +126,7 @@ class Trainer:
+             collate_fn=dataset.collate_fn,
+             batch_size=self.batch_size,
+             shuffle=True,
+-            num_workers=self.num_loaders,
++            num_workers=0,
+             pin_memory=False,
+             timeout=0,
+             drop_last=False)
+@@ -140,7 +144,7 @@ class Trainer:
+         prof = SimpleProfiler(torch_sync=PROFILE, print=PROFILE)
+ 
+         prof.tick("out")
+-
++        #import pdb;pdb.set_trace()
+         #try:
+         for batch in dataloader:
+ 
+diff --git a/mains/data_collect/collect_supervised_data.py b/mains/data_collect/collect_supervised_data.py
+index 3e54caf..e993d38 100755
+--- a/mains/data_collect/collect_supervised_data.py
++++ b/mains/data_collect/collect_supervised_data.py
+@@ -1,12 +1,12 @@
++import sys
++sys.path.insert(1, "/storage/dxsun/drif/")
+ from data_io.paths import get_supervised_data_filename
+ from rollout.parallel_roll_out import ParallelPolicyRoller
+ from rollout.roll_out_params import RollOutParams
+ from data_io.instructions import get_all_env_id_lists
+ from data_io.train_data import save_dataset, file_exists
+-
+ import parameters.parameter_server as P
+ 
+-
+ def filter_uncollected_envs(env_list):
+     uncollected = []
+     excluded = []
+@@ -24,8 +24,9 @@ def filter_uncollected_envs(env_list):
+ def collect_data_on_env_list(env_list):
+     setup = P.get_current_parameters()["Setup"]
+ 
+-    roller = ParallelPolicyRoller(num_workers=setup["num_workers"], reduce=False)
++    # roller = ParallelPolicyRoller(num_workers=setup["num_workers"], reduce=False)
+ 
++    roller = ParallelPolicyRoller(num_workers=1, reduce=False)
+     roll_params = RollOutParams() \
+         .setModelName("oracle") \
+         .setRunName(setup["run_name"]) \
+@@ -51,11 +52,14 @@ def collect_data_on_env_list(env_list):
+         round_envs = round_envs[:group_size]
+         roll_params.setEnvList(round_envs)
+         env_datas = roller.roll_out_policy(roll_params)
++        print("env_datas:", env_datas)
+         for j in range(len(env_datas)):
+             env_data = env_datas[j]
++            print("env_data code4:", env_data)
+             if len(env_data) > 0:
+                 env_id = env_data[0]["metadata"]["env_id"]
+                 filename = get_supervised_data_filename(env_id)
++                print("filename:", filename)
+                 save_dataset(env_data, filename)
+             else:
+                 print("Empty rollout!")
+@@ -66,10 +70,9 @@ def collect_supervised_data():
+     setup = P.get_current_parameters()["Setup"]
+ 
+     train_envs, dev_envs, test_envs = get_all_env_id_lists(setup["max_envs"])#
+-
+     collect_data_on_env_list(train_envs)
+     collect_data_on_env_list(dev_envs)
+ 
+ 
+ if __name__ == "__main__":
+-    collect_supervised_data()
+\ No newline at end of file
++    collect_supervised_data()
+diff --git a/mains/train/train_supervised.py b/mains/train/train_supervised.py
+index ebd2fa7..2366b6e 100755
+--- a/mains/train/train_supervised.py
++++ b/mains/train/train_supervised.py
+@@ -1,4 +1,7 @@
++import sys
++sys.path.insert(1, "/storage/dxsun/drif/")
+ from learning.training.train_supervised import Trainer
++import data_io
+ from data_io.train_data import file_exists
+ from data_io.models import load_model
+ from data_io.model_io import save_pytorch_model, load_pytorch_model
+@@ -17,10 +20,14 @@ def train_supervised():
+     num_epochs = supervised_params["num_epochs"]
+ 
+     model, model_loaded = load_model()
+-
++    # import pdb; pdb.set_trace()
++    # import pickle
++    # with open('/storage/dxsun/model_input.pickle', 'rb') as f: data = pickle.load(f)
++    # g = model(data['images'], data['states'], data['instructions'], data['instr_lengths'], data['has_obs'], data['plan'], data['save_maps_only'], data['pos_enc'], data['noisy_poses'], data['start_poses'], data['firstseg'])
++    print("model:", model)
++    print("model type:", type(model))
+     print("Loading data")
+     train_envs, dev_envs, test_envs = get_all_env_id_lists(max_envs=setup["max_envs"])
+-
+     if "split_train_data" in supervised_params and supervised_params["split_train_data"]:
+         split_name = supervised_params["train_data_split"]
+         split = load_env_split()[split_name]
+@@ -29,23 +36,26 @@ def train_supervised():
+ 
+     filename = "supervised_" + setup["model"] + "_" + setup["run_name"]
+     start_filename = "tmp/" + filename + "_epoch_" + str(supervised_params["start_epoch"])
++    print("start_filename:", start_filename)
+     if supervised_params["start_epoch"] > 0:
+         if file_exists(start_filename):
++            print("THE FILE EXISTS code1")
+             load_pytorch_model(model, start_filename)
+         else:
+             print("Couldn't continue training. Model file doesn't exist at:")
+             print(start_filename)
+             exit(-1)
+ 
++    all_train_data, all_test_data = data_io.train_data.load_supervised_data(max_envs=2000)
+     if setup["restore_weights_name"]:
+         restore_pretrained_weights(model, setup["restore_weights_name"], setup["fix_restored_weights"])
+ 
+     trainer = Trainer(model, epoch=supervised_params["start_epoch"], name=setup["model"], run_name=setup["run_name"])
+-
++    # import pdb;pdb.set_trace()
+     print("Beginning training...")
+     best_test_loss = 1000
+     for epoch in range(num_epochs):
+-        train_loss = trainer.train_epoch(train_data=None, train_envs=train_envs, eval=False)
++        train_loss = trainer.train_epoch(train_data=all_train_data, train_envs=train_envs, eval=False)
+ 
+         trainer.model.correct_goals = 0
+         trainer.model.total_goals = 0

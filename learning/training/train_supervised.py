@@ -137,7 +137,7 @@ class Trainer:
             return -1.0
 
         num_batches = int((num_samples + self.batch_size - 1) / self.batch_size)
-
+        
         epoch_loss = 0
         count = 0
 
@@ -148,6 +148,8 @@ class Trainer:
         #try:
         for batch in dataloader:
 
+                # For debugging batch_size 
+                # import pdb; pdb.set_trace()
                 if batch is None:
                     #print("None batch!")
                     continue

@@ -46,7 +46,7 @@ def train_supervised():
             print(start_filename)
             exit(-1)
 
-    all_train_data, all_test_data = data_io.train_data.load_supervised_data(max_envs=2000)
+    # all_train_data, all_test_data = data_io.train_data.load_supervised_data(max_envs=100)
     if setup["restore_weights_name"]:
         restore_pretrained_weights(model, setup["restore_weights_name"], setup["fix_restored_weights"])
 
@@ -55,7 +55,10 @@ def train_supervised():
     print("Beginning training...")
     best_test_loss = 1000
     for epoch in range(num_epochs):
-        train_loss = trainer.train_epoch(train_data=all_train_data, train_envs=train_envs, eval=False)
+        print("filename:", filename)   
+        # import pdb;pdb.set_trace()
+        train_loss = trainer.train_epoch(train_data=None, train_envs=train_envs, eval=False)
+        # train_loss = trainer.train_epoch(train_data=all_train_data, train_envs=train_envs, eval=False)
 
         trainer.model.correct_goals = 0
         trainer.model.total_goals = 0

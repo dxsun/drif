@@ -16,8 +16,8 @@ def filter_uncollected_envs(env_list):
             uncollected.append(env)
         else:
             excluded.append(env)
-    print("Including envs: ", uncollected)
-    print("Excluding envs: ", excluded)
+    # print("Including envs: ", uncollected)
+    # print("Excluding envs: ", excluded)
     return uncollected
 
 

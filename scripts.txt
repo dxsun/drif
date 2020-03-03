@@ -1,0 +1,98 @@
+How to enter machine:
+
+  $ ssh dxsun@melville.csail.mit.edu
+  (enter CSAIL password)
+  $ cd /storage/dxsun
+
+
+How to start the simulator:
+
+  On csail machine:
+
+    ( Start the vnc server on port 99 )
+    $ cd /opt/TurboVNC/bin 
+    $ ./vncserver :99
+
+  On local machine:
+    $ cd /opt/TurboVNC/bin/
+    $ ./vncviewer
+    ( enter the New TurboVNC Connection window, make sure the Vnc server is melville.csail.mit.edu:99)
+    $ type in the turbovnc password 
+    ( a big window with circle and 3 small circles should pop up)
+
+  On new csail machine:
+    $ cd /storage/dxsun/drif/mains
+    $ conda activate py36
+
+    ## To run interactive top down experiment
+    $ (py35) DISPLAY=:99 vglrun -d :0.0 python interactive/interactive_top_down_pred.py interactive_top_down
+
+
+How to check gpu usage:
+  $ nvidia-smi
+
+
+CoRL 2018 training + experiments (from github)
+
+  $ cd /storage/dxsun/drif/mains
+  $ conda activate py36
+  $ (py36) python data_collect/collect_supervised_data.py corl_datacollect
+
+  ## This saves data into "/storage/dxsun/unreal_config_nl/data" in the file format "supervised_train_data_env_#" for some number #
+
+  $ (py36) DISPLAY=:99 vglrun -d :0.0 python train/train_supervised.py corl_pvn_train_stage1
+
+  ## This begins training the first stage of the model
+  
+
+
+How to save images (and view them in sshfs):
+
+  (If using sshfs)
+  on local computer:
+  $ cd ~/Desktop/Volumes
+  $ sshfs dxsun@melville.csail.mit.edu:/storage/dxsun ssh_fs_mount_csail
+  (can use any name, I just picked "ssh_fs_mount_csail")
+  
+  on csail machine:
+  $ cd /storage/dxsun/drif/mains
+  (go to wherever your "input.pickle" file is, which is created by saving forward_input variable inside the forward method of learning/models/model_sm_trajectorry_ratio.py (which is called when running the first set of training, "$ python train/train_supervised.py corl_pvn_train_stage1") into a pickle file)
+  $ python -i read_model_input.py 
+  
+  >>> from scipy.misc import imsave
+  >>> images = inp['images']
+  >>> for i, img in enumerate(images)
+  ...     fn = "model_input2_images/image" + str(i) + ".jpg"
+  ...     img = img.permute(1, 2, 0)
+  ...     imsave(fn, img)
+
+  (This saves the images into model_input2_images directory)
+
+  (If inside pdb)
+  >>> from scipy.misc import imsave
+  >>> for i, img in enumerate(images): fn = "model_input_pvn_full_images/image" + str(i) + ".jpg"; img = img.permute(1, 2, 0); imsave(fn, img)
+
+How to read instruction vectors
+  (Run whatever script and pdb.set_trace() at a point where the setup variable is valid)
+
+  (inside pdb):
+  from data_io.instructions import get_all_instructions, get_word_to_token_map
+  _, _, _, corpus = get_all_instructions()
+  token2term, word2token = get_word_to_token_map(corpus)
+
+  (Use word2token)
+
+
+  (can also read the token2term.txt file inside SuperUROP folder)
+
+
+notes:
+- set every random_config call to use random_config_6
+- on first loadup (random_json_0), doesn't go into pomdp interface, while it does for every next environment
+
+
+DISPLAY=:99 vglrun -d :0.0 ./Engine/Binaries/Linux/UE4Editor /storage/dxsun/MyProject5/MyProject5.uproject	
+
+DISPLAY=:99 vglrun -d :0.0 python interactive/interactive_top_down_pred.py interactive_top_down
+DISPLAY=:99 vglrun -d :0.0 python train/train_supervised.py corl_pvn_train_stage1
+vnc password: ***superurop

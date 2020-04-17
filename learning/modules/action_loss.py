@@ -117,6 +117,7 @@ class ActionLoss(CudaModule):
             loss = self.reduce_loss(loss)
 
         nans = loss != loss
+        # import pdb; pdb.set_trace()
         if torch.sum(nans.long()).data[0].item() > 0:
             print ("WARNING: Nan's encountered in loss calculation")
             print(loss)

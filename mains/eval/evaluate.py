@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(1, "/storage/dxsun/drif/")
 from evaluation.evaluate_t_landmark_side import DataEvalLandmarkSide
 from evaluation.evaluate_nl import DataEvalNL
 from rollout.parallel_roll_out import ParallelPolicyRoller
@@ -15,6 +17,7 @@ def evaluate():
     params = P.get_current_parameters()
     setup = params["Setup"]
 
+    # import pdb;pdb.set_trace()
     models = []
     for i in range(setup["num_workers"]):
         model, model_loaded = load_model()

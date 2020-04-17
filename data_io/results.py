@@ -1,7 +1,7 @@
 import os
 
 import imageio
-from scipy.misc import imsave
+from imageio import imsave
 
 from data_io.paths import get_results_dir
 from visualization import filter_for_gif

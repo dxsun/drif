@@ -62,7 +62,8 @@ class LoggingSummaryWriter(SummaryWriter):
             if type(value) == Variable:
                 value = value.data
             if hasattr(value, "cuda"):
-                value = value.cpu()[0]
+                # value = value.cpu()[0]
+                value = value.cpu().item()
             self.add_scalar(prefix + "/" + key, value, global_step)
 
     def save_spied_values(self):

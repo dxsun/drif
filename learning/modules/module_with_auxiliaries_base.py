@@ -120,6 +120,7 @@ class ModuleWithAuxiliaries(CudaModule):
         """
         loss_dict = {}
         count_dict = {}
+        # import pdb; pdb.set_trace()
         for module_name in self.aux_keys:
             input_names = self.auxiliaries[module_name].get_required_inputs()
             input_list = []

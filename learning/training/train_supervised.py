@@ -54,6 +54,12 @@ class Trainer:
         self.set_state(state)
         self.batch_num = 0
 
+        # from torch.utils.tensorboard import SummaryWriter
+        #from tensorboardX import SummaryWriter
+        #self.writer = SummaryWriter('/storage/dxsun/drif/runs/experiment')
+        from logger import Logger
+        self.logger = Logger('/storage/dxsun/drif/logs')
+
     def get_model_parameters(self, model):
         params_out = []
         skipped_params = 0
@@ -174,12 +180,13 @@ class Trainer:
 
                         prof.tick("backward")
 
+                        # Changed this slightly from original for testing
                         # This is SLOW! Don't do it often
                         # TODO: Get rid of tensorboard
-                        #if self.batch_num % 20 == 0 and hasattr(self.model, "writer"):
-                        #    params = self.model.named_parameters()
-                        #    self.write_grad_summaries(self.model.writer, params, self.batch_num)
-
+                        if self.batch_num % 20 == 1:
+                            params = self.model.named_parameters()
+                            # self.write_grad_summaries(self.writer, params, self.batch_num)
+                            self.logger.scalar_summary("loss", batch_loss.item(), self.batch_num)
                         self.batch_num += 1
                         self.optim.step()
 

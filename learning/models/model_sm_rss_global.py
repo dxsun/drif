@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from scipy.misc import imsave
+from imageio  import imsave
 
 from data_io.weights import enable_weight_saving
 from learning.datasets.segment_dataset_simple import SegmentDataset

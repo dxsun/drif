@@ -2,9 +2,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.autograd import Variable
-
-from scipy.misc import imsave, imresize
-
+from imageio import imsave
+from PIL import Image
 from data_io.model_io import load_pytorch_model
 from data_io import env
 from data_io.weights import enable_weight_saving
@@ -377,7 +376,8 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
     def scale_images(self, images):
         if images.shape[0] == 72 and images.shape[1] == 144:
             return images
-        images = imresize(images, (72, 144))
+        # images = imresize(images, (72, 144))
+        images = np.array(Image.fromarray(images).size((72,144)))
         return images
 
     def get_action(self, state, instruction):
@@ -569,7 +569,6 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
             were built along the way in response to the images. This is ugly, but allows code reuse
         :return:
         """
-        import pdb; pdb.set_trace()
         forward_input = {
             "images": images,
             "states": states,
@@ -583,6 +582,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
             "start_poses": start_poses,
             "firstseg": firstseg
         }
+        # import pdb; pdb.set_trace()
         # import pickle 
         # with open('/storage/dxsun/model_input.pickle', 'wb') as f:
         #     pickle.dump(forward_input, f, pickle.HIGHEST_PROTOCOL)
@@ -1031,6 +1031,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
                     showstuff = iter % 60 == 0
                     #showstuff = True
                     if showstuff:
+                        # import pdb; pdb.set_trace()
                         Presenter().show_image(ppinmap.data[0, 0:3], "map_a_r_gnd", torch=True, waitkey=1, scale=4)
                         Presenter().show_image(ppinmap.data[0, 3:6], "map_a_r_sm", torch=True, waitkey=1, scale=4)
                         Presenter().show_image(sm_global.data[0, 0:3], "sm_global", torch=True, waitkey=1, scale=8)
@@ -1074,6 +1075,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
 
         # Doing this in the end
         if self.params["run_auxiliaries"]:
+            # import pdb; pdb.set_trace()
             aux_losses = self.calculate_aux_loss(reduce_average=True)
             aux_loss = self.combine_aux_losses(aux_losses, self.aux_weights)
         else:

@@ -2,7 +2,7 @@ import json
 import os
 
 import numpy as np
-from scipy.misc import imread, imsave
+from imageio import imread, imsave
 import skimage.transform as transform
 from transforms3d import quaternions, euler
 

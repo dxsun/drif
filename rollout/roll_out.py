@@ -299,8 +299,11 @@ class PolicyRoller:
             # Filter out the envs that are not in all_instructions (we don't have instructions available for them)
             valid_env_ids = [i for i in env_ids if i in all_instructions]
 
-            count = 0
+            ## JUST FOR TEMP EVAL: only limiting it to 10 environments
+            # valid_env_ids= valid_env_ids[:10]
 
+            count = 0
+            # import pdb; pdb.set_trace()
             # Loop through environments
             for i, env_id in enumerate(valid_env_ids):
 

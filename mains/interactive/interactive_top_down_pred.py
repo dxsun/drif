@@ -222,7 +222,8 @@ def train_top_down_pred():
                 #plt.imshow(image.data.squeeze().permute(1,2,0).cpu().numpy())
                 #plt.show()
                 # presenter.show_image(image.data, "mask_pred_g", torch=False, waitkey=1, scale=4)
-                pred_viz_np = presenter.overlaid_image(image.data, mask_pred_np, channel=0)
+                import pdb; pdb.set_trace()
+		pred_viz_np = presenter.overlaid_image(image.data, mask_pred_np, channel=0)
                 # TODO: Don't show labels
                 # TODO: OpenCV colours
                 #label_mask_np = p.data.cpu().numpy()[0].transpose(1,2,0)

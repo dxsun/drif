@@ -27,6 +27,7 @@ def train_supervised():
     print("model:", model)
     print("model type:", type(model))
     print("Loading data")
+    # import pdb;pdb.set_trace()
     train_envs, dev_envs, test_envs = get_all_env_id_lists(max_envs=setup["max_envs"])
     if "split_train_data" in supervised_params and supervised_params["split_train_data"]:
         split_name = supervised_params["train_data_split"]
@@ -35,16 +36,24 @@ def train_supervised():
         print("Using " + str(len(train_envs)) + " envs from dataset split: " + split_name)
 
     filename = "supervised_" + setup["model"] + "_" + setup["run_name"]
-    start_filename = "tmp/" + filename + "_epoch_" + str(supervised_params["start_epoch"])
-    print("start_filename:", start_filename)
+
+    
+    # Code looks weird here because load_pytorch_model adds ".pytorch" to end of path, but
+    # file_exists doesn't
+    model_path = "tmp/" + filename + "_epoch_" + str(supervised_params["start_epoch"])
+    model_path_with_extension = model_path + ".pytorch"
+    print("model path:", model_path_with_extension)
     if supervised_params["start_epoch"] > 0:
-        if file_exists(start_filename):
+        if file_exists(model_path_with_extension):
             print("THE FILE EXISTS code1")
-            load_pytorch_model(model, start_filename)
+            load_pytorch_model(model, model_path)
         else:
             print("Couldn't continue training. Model file doesn't exist at:")
-            print(start_filename)
+            print(model_path_with_extension)
             exit(-1)
+    import pdb;pdb.set_trace()
+    ## If you just want to use the pretrained model
+    # load_pytorch_model(model, "supervised_pvn_stage1_train_corl_pvn_stage1")
 
     # all_train_data, all_test_data = data_io.train_data.load_supervised_data(max_envs=100)
     if setup["restore_weights_name"]:
@@ -54,8 +63,12 @@ def train_supervised():
     # import pdb;pdb.set_trace()
     print("Beginning training...")
     best_test_loss = 1000
-    for epoch in range(num_epochs):
-        print("filename:", filename)   
+
+    continue_epoch = supervised_params["start_epoch"] + 1 if supervised_params["start_epoch"] > 0 else 0
+    rng = range(0, num_epochs)
+    print("filename:", filename)
+
+    for epoch in rng:
         # import pdb;pdb.set_trace()
         train_loss = trainer.train_epoch(train_data=None, train_envs=train_envs, eval=False)
         # train_loss = trainer.train_epoch(train_data=all_train_data, train_envs=train_envs, eval=False)

@@ -12,6 +12,7 @@ SETUP_NAME = None
 def get_param_server_dir():
     pyfile = os.path.realpath(__file__)
     pydir = os.path.dirname(pyfile)
+    print("param server dir:", pydir)
     return pydir
 
 
@@ -55,6 +56,7 @@ def import_include_params(params):
 
 
 def initialize_experiment(setup_name=None):
+    # import pdb; pdb.set_trace()
     if setup_name is None:
         assert len(sys.argv) >= 2, "The second command-line argument provided must be the setup name"
         setup_name = sys.argv[1]

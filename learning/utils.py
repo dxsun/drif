@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import torch
-from scipy.misc import imsave
+from imageio import imsave
 from transformations import poses_as_to_img
 
 import parameters.parameter_server as ps

@@ -35,6 +35,8 @@ class SentenceEmbeddingSimple(ModuleBase):
         return self.last_output
 
     def forward(self, word_ids, lengths=None):
+        import pdb
+        # pdb.set_trace()
         # TODO: Get rid of this and abstract in another layer
         if isinstance(word_ids, list) and lengths is None:
             word_ids, lengths = sequence_list_to_tensor([word_ids])

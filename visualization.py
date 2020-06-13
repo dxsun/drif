@@ -259,7 +259,10 @@ class Presenter:
         import cv2
 
         image = self.prep_image(image, scale)
-
+        
+        #if name == "map_a_r_sm":
+        #    import pdb; pdb.set_trace()
+        #    cv2.imwrite("/storage/dxsun/drif/mains/blessed_image3.jpg", image)
         cv2.namedWindow(name, cv2.WINDOW_AUTOSIZE | cv2.WINDOW_GUI_NORMAL)
         cv2.imshow(name, image)
         if type(waitkey) is int:

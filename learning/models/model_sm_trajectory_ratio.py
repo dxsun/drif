@@ -43,6 +43,7 @@ from utils.simple_profiler import SimpleProfiler
 from visualization import Presenter
 from utils.logging_summary_writer import LoggingSummaryWriter
 
+from logger import Logger
 from learning.utils import save_tensor_as_img, get_viz_dir, draw_drone_poses
 
 from learning.meters.moving_average import MovingAverageMeter
@@ -92,6 +93,8 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
         self.use_aux_traj_on_map = False
         self.use_aux_traj_on_map_ratio = self.params["aux"]["path"]
         self.use_aux_reg_map = self.params["aux"]["regularize_map"]
+
+        # import pdb;pdb.set_trace()
 
         self.do_perturb_maps = self.params["perturb_maps"] if self.model_class in [PVN_STAGE1_ONLY, MODEL_FPV] else False
         print("Perturbing maps: ", self.do_perturb_maps)
@@ -254,6 +257,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
             self.add_auxiliary(FeatureRegularizationAuxiliary2D("aux_regularize_features", None, "l1",
                                                                 "map_s_w_select", "lm_pos_map_select"))
 
+
         self.goal_good_criterion = GoalPredictionGoodCriterion(ok_distance=3.2)
         self.goal_acc_meter = MovingAverageMeter(10)
 
@@ -274,6 +278,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
         self.seq_step = 0
         self.get_act_start_pose = None
         self.gt_labels = None
+
 
     # TODO: Try to hide these in a superclass or something. They take up a lot of space:
     def cuda(self, device=None):
@@ -845,9 +850,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
 
     # Forward pass for training
     def sup_loss_on_batch(self, batch, eval):
-        print("code5")
         self.prof.tick("out")
-
         action_loss_total = Variable(empty_float_tensor([1], self.is_cuda, self.cuda_device))
 
         if batch is None:
@@ -1029,9 +1032,18 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
 
                     iter = self.get_iter()
                     showstuff = iter % 60 == 0
-                    #showstuff = True
                     if showstuff:
                         # import pdb; pdb.set_trace()
+                        print("=======================================")
+                        print(ppinmap.data[0, 0:3])
+                        print(type(ppinmap.data[0, 0:3]))
+                        print(torch.max(ppinmap.data[0, 0:3]).item())
+                        print("=======================================")
+                        self.logger.log_image("map_a_r_gnd", Presenter().prep_image(ppinmap.data[0, 0:3], 4), iter)
+                        self.logger.log_image("map_a_r_sm", Presenter().prep_image(ppinmap.data[0, 3:6], 4), iter)
+                        self.logger.log_image("sm_global",Presenter().prep_image(sm_global.data[0, 0:3], 8), iter)
+                        self.logger.log_image("pp_prior", Presenter().prep_image(pp_prior.data[0], 4), iter)
+                        self.logger.log_image("pp_posterior", Presenter().prep_image(pp_posterior.data[0], 4), iter)
                         Presenter().show_image(ppinmap.data[0, 0:3], "map_a_r_gnd", torch=True, waitkey=1, scale=4)
                         Presenter().show_image(ppinmap.data[0, 3:6], "map_a_r_sm", torch=True, waitkey=1, scale=4)
                         Presenter().show_image(sm_global.data[0, 0:3], "sm_global", torch=True, waitkey=1, scale=8)
@@ -1040,7 +1052,7 @@ class ModelTrajectoryTopDown(ModuleWithAuxiliaries):
 
                     # We can't report goal-prediction accuracy if we don't have a goal-state channel.
                     if not self.params["action_in_path_only"]:
-                        ok_goal = self.goal_good_criterion(map_pathpred, traj_gt, show="goal_pred" if showstuff else "")
+                        ok_goal = self.goal_good_criterion(map_pathpred, traj_gt, show="goal_pred" if showstuff else "", iteration=iter)
                         correct_goal = 0
                         self.total_goals += 1
                         if not ok_goal.all():

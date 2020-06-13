@@ -32,7 +32,8 @@
         "config_dir": "/storage/dxsun/unreal_config_nl",
         "real_drone": false,
         "templates": false,
-        "headless": false
+        "headless": false,
+        "tensorboard_dir": "/storage/dxsun/drif/logs14"
     },
     "Setup": {
         "model": "pvn_stage1",

@@ -57,8 +57,6 @@ class Trainer:
         # from torch.utils.tensorboard import SummaryWriter
         #from tensorboardX import SummaryWriter
         #self.writer = SummaryWriter('/storage/dxsun/drif/runs/experiment')
-        from logger import Logger
-        self.logger = Logger('/storage/dxsun/drif/logs')
 
     def get_model_parameters(self, model):
         params_out = []

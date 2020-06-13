@@ -9,7 +9,7 @@ from data_io.weights import restore_pretrained_weights, save_pretrained_weights
 from data_io.instructions import get_all_env_id_lists
 from data_io.env import load_env_split
 from parameters.parameter_server import initialize_experiment, get_current_parameters
-
+from logger import Logger
 
 # Supervised learning parameters
 def train_supervised():
@@ -51,7 +51,7 @@ def train_supervised():
             print("Couldn't continue training. Model file doesn't exist at:")
             print(model_path_with_extension)
             exit(-1)
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     ## If you just want to use the pretrained model
     # load_pytorch_model(model, "supervised_pvn_stage1_train_corl_pvn_stage1")
 
@@ -59,7 +59,18 @@ def train_supervised():
     if setup["restore_weights_name"]:
         restore_pretrained_weights(model, setup["restore_weights_name"], setup["fix_restored_weights"])
 
+    # Add a tensorboard logger to the model and trainer
+    tensorboard_dir = get_current_parameters()['Environment']['tensorboard_dir']
+    logger = Logger(tensorboard_dir)
+    model.logger = logger
+    if hasattr(model, "goal_good_criterion"):
+        print("gave logger to goal evaluator")
+        model.goal_good_criterion.logger = logger
+
     trainer = Trainer(model, epoch=supervised_params["start_epoch"], name=setup["model"], run_name=setup["run_name"])
+
+    trainer.logger = logger    
+
     # import pdb;pdb.set_trace()
     print("Beginning training...")
     best_test_loss = 1000
@@ -67,6 +78,9 @@ def train_supervised():
     continue_epoch = supervised_params["start_epoch"] + 1 if supervised_params["start_epoch"] > 0 else 0
     rng = range(0, num_epochs)
     print("filename:", filename)
+
+
+    import pdb;pdb.set_trace()
 
     for epoch in rng:
         # import pdb;pdb.set_trace()

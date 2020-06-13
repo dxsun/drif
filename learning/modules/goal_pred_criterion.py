@@ -1,9 +1,9 @@
 import torch
 import numpy as np
 from learning.modules.cuda_module import CudaModule
-
+from logger import Logger
 from visualization import Presenter
-
+from parameters.parameter_server import get_current_parameters
 class GoalPredictionGoodCriterion(CudaModule):
     """
     This module takes a given goal-prediction mask and a correct goal location mask and
@@ -12,7 +12,8 @@ class GoalPredictionGoodCriterion(CudaModule):
         If the goal prediction is good, we train the controller to execute the trajectory
         If the goal prediction is bad, we skip the gradient update
     """
-    def __init__(self, ok_distance=3.2):
+    def __init__(self, ok_distance=3.2, logger=None):
+        self.logger = logger
         super(GoalPredictionGoodCriterion, self).__init__()
         self.ok_distance = ok_distance
 
@@ -20,12 +21,13 @@ class GoalPredictionGoodCriterion(CudaModule):
         CudaModule.cuda(self, device)
         return self
 
-    def forward(self, masks, mask_labels, show=""):
+    def forward(self, masks, mask_labels, show="", iteration=0):
 
         if show != "":
             Presenter().show_image(masks.data[0], "pred_mask", torch=True, waitkey=1, scale=4)
             Presenter().show_image(mask_labels.data[0], "mask_labels", torch=True, waitkey=1, scale=4)
-
+            self.logger.log_image("pred_mask", Presenter().prep_image(masks.data[0], 4), iteration) 
+            self.logger.log_image("mask_labels", Presenter().prep_image(mask_labels.data[0], 4), iteration) 
         if masks.size(1) == 1:
             return False
 

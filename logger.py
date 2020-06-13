@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-import scipy.misc 
+from PIL import Image
 try:
     from StringIO import StringIO  # Python 2.7
 except ImportError:
@@ -21,6 +21,30 @@ class Logger(object):
         with self.writer.as_default():
             tf.summary.scalar(tag, value, step=step)
             self.writer.flush()
+
+    def log_image(self, tag, image, step):
+        try:
+            s = StringIO()
+        except:
+            s = BytesIO()
+    
+        # maybe converting it to 0-255 works?
+        converted_image = (image*255).astype(np.uint8)
+        # NOTE: DO NOT SET TO TYPE np.uint8, as it creates weird white borders everywhere
+        # converted_image = image*255
+        Image.fromarray(converted_image).save(s, format="png")
+        #import imageio
+        #imageio.imwrite("/storage/dxsun/drif/mains/blessed_img.png", converted_image)
+        #import cv2
+        #cv2.imwrite("/storage/dxsun/drif/mains/blessed_img2.png", converted_image)
+
+        #raise Exception
+        image = tf.image.decode_png(s.getvalue(), channels=4)
+        image = tf.expand_dims(image, 0)
+
+        with self.writer.as_default():
+            tf.summary.image(tag, image, step=step)
+
     def image_summary(self, tag, images, step):
         """Log a list of images."""
 
@@ -31,7 +55,8 @@ class Logger(object):
                 s = StringIO()
             except:
                 s = BytesIO()
-            scipy.misc.toimage(img).save(s, format="png")
+            # scipy.misc.toimage(img).save(s, format="png")
+            Image.fromarray(img.cpu().numpy()).convert('RGB').save(s, format="png")
 
             # Create an Image object
             img_sum = tf.Summary.Image(encoded_image_string=s.getvalue(),
